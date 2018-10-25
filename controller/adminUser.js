@@ -73,4 +73,26 @@ router.post('/login', async(req, res, next) => { // 登录模块
   }
 })
 
+router.get('/', async(req, res, next) => {
+  try{
+    let {page=1, row=10} = req.query
+    page = parseInt(page)
+    row = parseInt(row)
+
+    let dataList = await adminUserModel
+        .find()
+        .skip((page-1)*row)
+        .limit(row)
+        .sort({_id:-1})
+        .select("-password")
+    res.json({
+      code:200,
+      data:dataList,
+      msg:'success'
+    })
+  } catch(err) {
+    next(err)
+  }
+})
+
 module.exports = router;
