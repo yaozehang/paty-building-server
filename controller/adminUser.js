@@ -75,7 +75,7 @@ router.post('/login', async(req, res, next) => { // 登录模块
 
 router.get('/', async(req, res, next) => {
   try{
-    let {page=1, row=10} = req.query
+    let {page, row=10} = req.query
     page = parseInt(page)
     row = parseInt(row)
 
@@ -85,10 +85,14 @@ router.get('/', async(req, res, next) => {
         .limit(row)
         .sort({_id:-1})
         .select("-password")
+
+    const total = await adminUserModel.count();
+    
     res.json({
       code:200,
       data:dataList,
-      msg:'success'
+      msg:'success',
+      total
     })
   } catch(err) {
     next(err)

@@ -6,4 +6,4 @@ const category = new mongoose.Schema({
 
 }, {versionKey:false, timestamps: {createdAt: 'create_time', updatedAt: 'update_time'} })
 
-module.exports = mongose.model('category', category) 
+module.exports = mongoose.model('category', category) 
