@@ -63,7 +63,6 @@ router.get("/:id", async (req, res, next) => {
 
     const data = await newsModel
       .findById(id)
-      .sort({ _id: -1 })
       .populate({
         path: "author",
         select: "-password"
@@ -81,7 +80,7 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-router.patch("/:id", async (req, res, next) => {
+router.patch("/:id", auth, async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -103,6 +102,20 @@ router.patch("/:id", async (req, res, next) => {
     }
   } catch (error) {
     next(error);
+  }
+});
+
+router.delete("/:id", auth, async (req, res, next) => {
+  try {
+    let { id } = req.params;
+
+    let data = await newsModel.deleteOne({_id:id});
+    res.json({
+      code: 200,
+      msg: "删除成功"
+    });
+  } catch (error) {
+    next(error)
   }
 });
 
