@@ -49,14 +49,16 @@ router.post("/login", async (req, res, next) => {
         //有没有这个用户
         if (password == user.password) {
           req.session.user = user; //将用户的信息存进session内
+          const data = await adminUserModel.findOne({username}).select("-password")
           res.json({
             code: 200,
-            msg: "登录成功"
+            msg: "登录成功",
+            data
           });
         } else {
           res.json({
             code: 401,
-            msg: "密码错误"
+            msg: "密码错误",
           });
         }
       } else {
@@ -163,5 +165,34 @@ router.delete("/:id", auth, async (req, res, next) => {
     next(error)
   }
 });
+
+router.patch("/password/:id", auth, async(req, res, next) => {
+  try {
+    let {id} = req.params
+
+    let { oldPass, pass} = req.body;
+
+    let password = pass
+
+    const record = await adminUserModel.findById(id); 
+
+    if(record.password == oldPass) {
+      await record.$set({password})
+      await record.save();
+      res.json({
+        code: 200,
+        msg: "修改成功"
+      });
+    } else {
+      res.json({
+        code: 400,
+        msg: "修改失败,旧密码不正确"
+      });
+    }
+    
+  } catch (error) {
+    next(error)
+  }
+})
 
 module.exports = router;
