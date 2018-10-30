@@ -38,14 +38,20 @@ router.post("/", auth, async (req, res, next) => {
 router.get('/getCommon/:topicId',async(req, res, next) => {
   try {
     let {topicId} = req.params
+    let {page=1, row=10} = req.query
+    page = parseInt(page)  //将字符串转为整数
+    row = parseInt(row)
 
     const dataList = await commonModel
       .find({topic:topicId})
+      .skip((page -1 )*row)
+      .limit(row)
+      .sort({_id:1})
       .populate({
         path:'user',
         select:'username avatar'
       })
-    const total = await commonModel.count()
+    let total = await commonModel.find({topic:topicId}).count()
     res.json({
       code:200,
       msg:'success',
@@ -56,5 +62,19 @@ router.get('/getCommon/:topicId',async(req, res, next) => {
     next(error)
   }
 })
+
+router.delete("/:id", auth, async (req, res, next) => {
+  try {
+    let { id } = req.params;
+
+    let data = await commonModel.deleteOne({_id:id});
+    res.json({
+      code: 200,
+      msg: "删除成功"
+    });
+  } catch (error) {
+    next(error)
+  }
+});
 
 module.exports = router;

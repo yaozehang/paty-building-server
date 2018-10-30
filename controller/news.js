@@ -119,4 +119,26 @@ router.delete("/:id", auth, async (req, res, next) => {
   }
 });
 
+router.get("/search",async(req, res, next) => {
+  try {
+    let {title} = req.query
+
+    let dataList = await newsModel.find({title})
+    if(dataList){
+      res.json({
+        code:200,
+        msg:"查询成功",
+        data:dataList
+      })
+    } else {
+      res.json({
+        code:400,
+        msg:"没有查找到"
+      })
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
 module.exports = router;
