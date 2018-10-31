@@ -195,4 +195,29 @@ router.patch("/password/:id", auth, async(req, res, next) => {
   }
 })
 
+router.get("/search/username", async (req, res, next) => {
+  try {
+    let { username } = req.query;
+
+    let dataList = await adminUserModel
+      .find({ username: { $regex: username } })
+      .select("-password");
+
+    if (dataList) {
+      res.json({
+        code: 200,
+        msg: "success",
+        data: dataList
+      });
+    } else {
+      res.json({
+        code: 400,
+        msg: "没有找到"
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;

@@ -2,8 +2,8 @@ const express = require("express");
 const router = express.Router();
 const auth = require("./auth");
 const newsModel = require("../model/news");
-const mongoose = require('mongoose');
-const ObjectId = mongoose.Types.ObjectId
+const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
 
 router.post("/", auth, async (req, res, next) => {
   try {
@@ -43,9 +43,9 @@ router.get("/", async (req, res, next) => {
         select: "-password"
       })
       .populate({
-        path: "type",
-      })
-      const total = await newsModel.count();
+        path: "type"
+      });
+    const total = await newsModel.count();
     res.json({
       code: 200,
       msg: "success",
@@ -68,7 +68,7 @@ router.get("/:id", async (req, res, next) => {
         select: "-password"
       })
       .populate({
-        path: "type",
+        path: "type"
       });
     res.json({
       code: 200,
@@ -86,19 +86,27 @@ router.patch("/:id", auth, async (req, res, next) => {
 
     let { title, content, contentText, img, author, type, look_num } = req.body;
 
-    const record = await newsModel.findById(id)
+    const record = await newsModel.findById(id);
     if (record) {
-      await record.$set({ title, content, contentText, img, author: ObjectId(author), type: ObjectId(type), look_num })
-      await record.save()
-        res.json({
-            code: 200,
-            msg: '修改成功'
-        })
+      await record.$set({
+        title,
+        content,
+        contentText,
+        img,
+        author: ObjectId(author),
+        type: ObjectId(type),
+        look_num
+      });
+      await record.save();
+      res.json({
+        code: 200,
+        msg: "修改成功"
+      });
     } else {
-        res.json({
-            code: 400,
-            msg: '修改失败'
-        })
+      res.json({
+        code: 400,
+        msg: "修改失败"
+      });
     }
   } catch (error) {
     next(error);
@@ -109,36 +117,45 @@ router.delete("/:id", auth, async (req, res, next) => {
   try {
     let { id } = req.params;
 
-    let data = await newsModel.deleteOne({_id:id});
+    let data = await newsModel.deleteOne({ _id: id });
     res.json({
       code: 200,
       msg: "删除成功"
     });
   } catch (error) {
-    next(error)
+    next(error);
   }
 });
 
-router.get("/search",async(req, res, next) => {
+router.get("/search/title", async (req, res, next) => {
   try {
-    let {title} = req.query
+    let { title } = req.query;
 
-    let dataList = await newsModel.find({title})
-    if(dataList){
-      res.json({
-        code:200,
-        msg:"查询成功",
-        data:dataList
+    let dataList = await newsModel
+      .find({ title: { $regex: title } })
+      .populate({
+        path: "author",
+        select: "-password"
       })
+      .populate({
+        path: "type"
+      });
+
+    if (dataList) {
+      res.json({
+        code: 200,
+        msg: "success",
+        data: dataList
+      });
     } else {
       res.json({
-        code:400,
-        msg:"没有查找到"
-      })
+        code: 400,
+        msg: "没有找到"
+      });
     }
   } catch (error) {
-    next(error)
+    next(error);
   }
-})
+});
 
 module.exports = router;

@@ -111,4 +111,29 @@ router.delete("/:id", auth, async (req, res, next) => {
   }
 });
 
+router.get("/search/title", async (req, res, next) => {
+  try {
+    let { title } = req.query;
+
+    let dataList = await swiperMoudel
+      .find({ title: { $regex: title } })
+      .select("-password");
+
+    if (dataList) {
+      res.json({
+        code: 200,
+        msg: "success",
+        data: dataList
+      });
+    } else {
+      res.json({
+        code: 400,
+        msg: "没有找到"
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;
